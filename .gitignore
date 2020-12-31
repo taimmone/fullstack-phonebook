@@ -1,1 +1,8 @@
+# ESLint cache
+.eslintcache
+
+# Node modules
 node_modules
+
+# dotenv files
+.env
