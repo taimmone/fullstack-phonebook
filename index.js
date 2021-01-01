@@ -50,8 +50,8 @@ app.get('/api/persons/:id', (req, res, next) =>
 );
 
 app.put('/api/persons/:id', (req, res, next) => {
-  const { name, number } = req.body;
-  Person.findByIdAndUpdate(req.params.id, { name, number }, { new: true })
+  const { number } = req.body;
+  Person.findByIdAndUpdate(req.params.id, { number }, { new: true, runValidators: true })
     .then(result => res.status(200).json(result))
     .catch(err => next(err));
 });
@@ -67,6 +67,7 @@ app.use((req, res) => res.status(404).send({ err: 'unknown endpoint' }));
 app.use((err, req, res, next) => {
   console.log(err.message);
   if (err.name === 'CastError') return res.status(400).send({ err: 'malformatted id' });
+  if (err.name === 'ValidationError') return res.status(400).json({ error: err.message });
   next(err);
 });
 
