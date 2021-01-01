@@ -9,10 +9,10 @@ app.use(cors());
 
 const morgan = require('morgan');
 morgan.token('person', (req, res) => JSON.stringify(req.body));
-app.use(morgan('tiny', { skip: (req, res) => req.method === 'POST' }));
+app.use(morgan('tiny', { skip: (req, res) => req.method === 'POST' }) || req.method === 'PUT');
 app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :person', {
-    skip: (req, res) => req.method !== 'POST',
+    skip: (req, res) => req.method !== 'POST' && req.method !== 'PUT',
   })
 );
 
@@ -48,6 +48,13 @@ app.get('/api/persons/:id', (req, res, next) =>
     .then(person => res.json(person))
     .catch(err => next(err))
 );
+
+app.put('/api/persons/:id', (req, res, next) => {
+  const { name, number } = req.body;
+  Person.findByIdAndUpdate(req.params.id, { name, number }, { new: true })
+    .then(result => res.status(200).json(result))
+    .catch(err => next(err));
+});
 
 app.delete('/api/persons/:id', (req, res, next) =>
   Person.findByIdAndRemove(req.params.id)

@@ -26,26 +26,26 @@ const App = () => {
     const existingPerson = persons.find(({ name }) => name === newPerson.name);
 
     if (existingPerson && existingPerson.number !== newPerson.number) {
-      window.alert(`${newPerson.name} is already added to phonebook`);
-      // TODO: Requires backend functionality for updating persons
-      // window.confirm(
-      //   `${newPerson.name} is already added to phonebook, replace the old number with a new one?`
-      // ) &&
-      //   phonebookService
-      //     .update(existingPerson.id, newPerson)
-      //     .then(updatedPerson => {
-      //       setPersons(
-      //         persons.map(person => (person.id !== existingPerson.id ? person : updatedPerson))
-      //       );
-      //       createNotification(`Updated ${newPerson.name}`);
-      //     })
-      //     .catch(err => {
-      //       createNotification(
-      //         `Information of ${newPerson.name} has already been removed from server`,
-      //         true
-      //       );
-      //       setPersons(persons.filter(person => person.id !== existingPerson.id));;
-      //     });
+      if (
+        window.confirm(
+          `${newPerson.name} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        phonebookService.update(existingPerson.id, newPerson).then(updatedPerson => {
+          if (!updatedPerson) {
+            createNotification(
+              `Information of ${newPerson.name} has already been removed from server`,
+              true
+            );
+            setPersons(persons.filter(person => person.id !== existingPerson.id));
+            return;
+          }
+          setPersons(
+            persons.map(person => (person.id !== existingPerson.id ? person : updatedPerson))
+          );
+          createNotification(`Updated ${newPerson.name}`);
+        });
+      }
     } else {
       phonebookService.create(newPerson).then(createdPerson => {
         setPersons([...persons, createdPerson]);
