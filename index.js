@@ -8,11 +8,11 @@ const cors = require('cors');
 app.use(cors());
 
 const morgan = require('morgan');
-morgan.token('person', (req, res) => JSON.stringify(req.body));
-app.use(morgan('tiny', { skip: (req, res) => req.method === 'POST' }) || req.method === 'PUT');
+morgan.token('person', req => JSON.stringify(req.body));
+app.use(morgan('tiny', { skip: req => req.method === 'POST' || req.method === 'PUT' }));
 app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :person', {
-    skip: (req, res) => req.method !== 'POST' && req.method !== 'PUT',
+    skip: req => req.method !== 'POST' && req.method !== 'PUT',
   })
 );
 
@@ -58,7 +58,7 @@ app.put('/api/persons/:id', (req, res, next) => {
 
 app.delete('/api/persons/:id', (req, res, next) =>
   Person.findByIdAndRemove(req.params.id)
-    .then(result => res.status(204).end())
+    .then(() => res.status(204).end())
     .catch(err => next(err))
 );
 
