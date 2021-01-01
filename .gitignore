@@ -6,3 +6,6 @@ node_modules
 
 # dotenv files
 .env
+
+# VSCode REST Client requests
+requests.rest

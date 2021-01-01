@@ -16,8 +16,18 @@ mongoose
   .catch(error => log('error connecting to MongoDB:', error.message));
 
 const personSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true, uniqueCaseInsensitive: true },
-  number: { type: String, required: true },
+  name: {
+    type: String,
+    required: true,
+    minlength: 3,
+    unique: true,
+    uniqueCaseInsensitive: true,
+  },
+  number: {
+    type: String,
+    required: true,
+    validate: number => number.match(/(.*\d.*){8,}/),
+  },
 });
 
 personSchema.plugin(uniqueValidator, { type: 'mongoose-unique-validator' });

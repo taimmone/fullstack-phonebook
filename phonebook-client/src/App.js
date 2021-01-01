@@ -31,26 +31,32 @@ const App = () => {
           `${newPerson.name} is already added to phonebook, replace the old number with a new one?`
         )
       ) {
-        phonebookService.update(existingPerson.id, newPerson).then(updatedPerson => {
-          if (!updatedPerson) {
-            createNotification(
-              `Information of ${newPerson.name} has already been removed from server`,
-              true
+        phonebookService
+          .update(existingPerson.id, newPerson)
+          .then(updatedPerson => {
+            if (!updatedPerson) {
+              createNotification(
+                `Information of ${newPerson.name} has already been removed from server`,
+                true
+              );
+              setPersons(persons.filter(person => person.id !== existingPerson.id));
+              return;
+            }
+            setPersons(
+              persons.map(person => (person.id !== existingPerson.id ? person : updatedPerson))
             );
-            setPersons(persons.filter(person => person.id !== existingPerson.id));
-            return;
-          }
-          setPersons(
-            persons.map(person => (person.id !== existingPerson.id ? person : updatedPerson))
-          );
-          createNotification(`Updated ${newPerson.name}`);
-        });
+            createNotification(`Updated ${newPerson.name}`);
+          })
+          .catch(err => createNotification(err.response.data.error, true));
       }
     } else {
-      phonebookService.create(newPerson).then(createdPerson => {
-        setPersons([...persons, createdPerson]);
-        createNotification(`Added ${newPerson.name}`);
-      });
+      phonebookService
+        .create(newPerson)
+        .then(createdPerson => {
+          setPersons([...persons, createdPerson]);
+          createNotification(`Added ${newPerson.name}`);
+        })
+        .catch(err => createNotification(err.response.data.error, true));
     }
 
     setNewPerson({ name: '', number: '' });
